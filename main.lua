@@ -110,6 +110,37 @@ function f.slashCmds.search(...)
 		print("  " .. EMPH1 .. "No results found!")
 	end
 end
+function f.slashCmds.missing()
+	local results = {}
+	for profession, _ in pairs(AltTradeSkillDB.learnedProfessions[UnitName("player")]) do
+		local skillList = globals.tradeskills[profession]
+		for category, spellIds in globals.sortedpairs(skillList) do
+			for _, spellId in ipairs(spellIds) do
+				if not AltTradeSkillDB[profession][spellId][UnitName("player")] then
+					local spellName = globals.spellNames[spellId]
+
+					if results[profession] == nil then
+						results[profession] = {}
+					end
+
+					results[profession][spellId] = true
+				end
+			end
+		end
+	end
+
+	print(ADDON_PREFIX .. "Missing tradeskills for character " .. EMPH1 .. UnitName("player") .. "|r:")
+	for profession, spellIds in globals.sortedpairs(results) do
+		print("  " .. EMPH1 .. profession)
+		for spellId, toons in globals.sortedpairs(spellIds, globals.compspell) do
+			local spellName = globals.spellNames[spellId]
+			print("    " .. EMPH2 .. spellName)
+		end
+	end
+	if globals.tcount(results) == 0 then
+		print("  " .. EMPH1 .. "You've learned all the tradeskills!")
+	end
+end
 
 -- Assign slash command
 SLASH_ALTTRADESKILL1 = "/altts"
