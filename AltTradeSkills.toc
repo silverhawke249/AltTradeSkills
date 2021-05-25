@@ -1,0 +1,10 @@
+## Interface: 20501
+## Title: AltTradeSkills
+## Author: Silverhawke
+## Notes: Stores info on trade skills learned across alts
+## Version: 1.0
+## SavedVariables: AltTradeSkillDB
+
+tooltip.lua
+database.lua
+main.lua
