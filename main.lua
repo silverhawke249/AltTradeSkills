@@ -1,6 +1,6 @@
 local _, globals = ...
 
-local ADDON_PREFIX = "|cffca8e9e<AltTS>|r"
+local ADDON_PREFIX = "|cffca8e9e<AltTS>|r  "
 local EMPH1 = "|cff75d1ff"
 local EMPH2 = "|cffbbbbbb"
 
@@ -59,7 +59,7 @@ function f.slashCmds.dump()
 			for _, spellId in ipairs(spellIds) do
 				if globals.tcount(AltTradeSkillDB[profession][spellId]) > 0 then
 					if not printCat then
-						print("  " .. EMPH1 .. profession .. "|r | " .. EMPY1 .. category)
+						print("  " .. EMPH1 .. profession .. "|r | " .. EMPH1 .. category)
 						printCat = true
 					end
 					local spellName = globals.spellNames[spellId]
@@ -76,8 +76,8 @@ end
 function f.slashCmds.search(...)
 	local term = table.concat({...}, " ")
 	local results = {}
-	for profession, skillList in globals.sortedpairs(globals.tradeskills) do
-		for category, spellIds in globals.sortedpairs(skillList) do
+	for profession, skillList in pairs(globals.tradeskills) do
+		for category, spellIds in pairs(skillList) do
 			for _, spellId in ipairs(spellIds) do
 				if globals.tcount(AltTradeSkillDB[profession][spellId]) > 0 then
 					local spellName = globals.spellNames[spellId]
@@ -114,27 +114,28 @@ function f.slashCmds.missing()
 	local results = {}
 	for profession, _ in pairs(AltTradeSkillDB.learnedProfessions[UnitName("player")]) do
 		local skillList = globals.tradeskills[profession]
-		for category, spellIds in globals.sortedpairs(skillList) do
+		for category, spellIds in pairs(skillList) do
 			for _, spellId in ipairs(spellIds) do
 				if not AltTradeSkillDB[profession][spellId][UnitName("player")] then
 					local spellName = globals.spellNames[spellId]
 
-					if results[profession] == nil then
-						results[profession] = {}
-					end
+					results[profession] = results[profession] or {}
+					results[profession][category] = results[profession][category] or {}
 
-					results[profession][spellId] = true
+					results[profession][category][spellId] = true
 				end
 			end
 		end
 	end
 
 	print(ADDON_PREFIX .. "Missing tradeskills for character " .. EMPH1 .. UnitName("player") .. "|r:")
-	for profession, spellIds in globals.sortedpairs(results) do
-		print("  " .. EMPH1 .. profession)
-		for spellId, toons in globals.sortedpairs(spellIds, globals.compspell) do
-			local spellName = globals.spellNames[spellId]
-			print("    " .. EMPH2 .. spellName)
+	for profession, profList in globals.sortedpairs(results) do
+		for category, spellIds in globals.sortedpairs(profList) do
+			print("  " .. EMPH1 .. profession .. "|r | " .. EMPH1 .. category)
+			for spellId, toons in globals.sortedpairs(spellIds, globals.compspell) do
+				local spellName = globals.spellNames[spellId]
+				print("    " .. EMPH2 .. spellName)
+			end
 		end
 	end
 	if globals.tcount(results) == 0 then
@@ -165,9 +166,9 @@ end
 
 -- Compare two spellName strings
 function globals.compspell(a, b)
-	local sa = GetSpellInfo(a)
-	local sb = GetSpellInfo(b)
-	return sa > sb
+	local sa = globals.spellNames[a] or GetSpellInfo(a)
+	local sb = globals.spellNames[b] or GetSpellInfo(b)
+	return sa < sb
 end
 
 -- Count number of table entries
