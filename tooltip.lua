@@ -16,43 +16,67 @@ GameTooltip:HookScript("OnTooltipSetItem", function(self)
     if tooltipShown then return end
 	tooltipShown = true
 
-	local name, link = GameTooltip:GetItem()
-	if not name or not link then return end
+	local profName, spellId
+	local itemName, itemLink = GameTooltip:GetItem()
+	if itemName and itemLink then
+		-- Item tooltip
+		local itemTypeId, subItemTypeId = select(12, GetItemInfo(itemLink))
+		if itemTypeId ~= LE_ITEM_CLASS_RECIPE then return end
 
-	local itemTypeId, subItemTypeId = select(12, GetItemInfo(link))
-	if itemTypeId ~= LE_ITEM_CLASS_RECIPE then return end
+		-- local _, itemId = strsplit(":", itemLink)
+		profName = recipeProfession[subItemTypeId]
 
-	local _, itemId, _  = strsplit(":", link)
-	local profName = recipeProfession[subItemTypeId]
-	-- Hacky method to get the skill name
-	local modifiedName = select(2, strsplit(":", name))
-	if not modifiedName then return end
-	modifiedName = modifiedName:gsub(" ", ""):lower()
-	local spellId = globals.reverseLookup[modifiedName]
-	if not spellId then return end
+		local modifiedName = select(2, strsplit(":", itemName))
+		if not modifiedName then return end
+
+		modifiedName = modifiedName:gsub(" ", ""):lower()
+		spellId = globals.reverseLookup[modifiedName]
+	else
+		-- Spell tooltip
+		spellId = select(2, GameTooltip:GetSpell())
+
+		-- Search for profession name
+		for profession, subtables in pairs(globals.tradeskills) do
+			for _, spellIds in pairs(subtables) do
+				if tContains(spellIds, spellId) then
+					profName = profession
+					break
+				end
+			end
+
+			if profName then
+				break
+			end
+		end
+	end
+
+	if not spellId or not profName then return end
 
 	local altNames = {}
 	for toonName, profTable in pairs(AltTradeSkillDB.learnedProfessions) do
-		--if toonName ~= UnitName("player") then
 		if profTable[profName] then
 			altNames[toonName] = AltTradeSkillDB[profName][spellId][toonName] or false
 		end
-		--end
 	end
 	if globals.tcount(altNames) == 0 then return end
 
 	GameTooltip:AddLine(" ")
 	GameTooltip:AddLine("Learned on characters:", true)
 	for toonName, learnedStatus in pairs(altNames) do
-		local statusColor
+		local statusText, playerColor
 
 		if learnedStatus then
-			statusColor = "|cff1eff00[O]|r |cffffffff"
+			statusText = "|TInterface\\RaidFrame\\ReadyCheck-Ready:0|t "
 		else
-			statusColor = "|cffff0000[X]|r |cffffffff"
+			statusText = "|TInterface\\RaidFrame\\ReadyCheck-NotReady:0|t "
+		end
+		if UnitName("player") == toonName then
+			playerColor = "|cff70bbe6"
+		else
+			playerColor = "|cffffffff"
 		end
 
-		GameTooltip:AddLine("    " .. statusColor .. toonName)
+		GameTooltip:AddLine("    " .. statusText .. playerColor .. toonName)
 	end
 end)
 
