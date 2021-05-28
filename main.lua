@@ -2,7 +2,7 @@ local _, globals = ...
 
 local ADDON_PREFIX = "|cffca8e9e<AltTS>|r  "
 local EMPH1 = "|cff75d1ff"
-local EMPH2 = "|cffbbbbbb"
+local EMPH2 = "|cffffd000"
 
 -- Create frame
 local f = CreateFrame("FRAME")
@@ -67,7 +67,7 @@ function f.slashCmds.dump()
 					for name, _ in globals.sortedpairs(AltTradeSkillDB[profession][spellId]) do
 						tinsert(names, name)
 					end
-					print("    " .. EMPH2 .. spellName .. "|r - " .. table.concat(names, ", "))
+					print("    " .. EMPH2 ..  "|Hspell:" .. spellId .. "|h[" .. spellName .. "]|h|r - " .. table.concat(names, ", "))
 				end
 			end
 		end
@@ -103,7 +103,7 @@ function f.slashCmds.search(...)
 		print("  " .. EMPH1 .. profession)
 		for spellId, toons in globals.sortedpairs(spellIds, globals.compspell) do
 			local spellName = GetSpellInfo(spellId)
-			print("    " .. EMPH2 .. spellName .. "|r - " .. toons)
+			print("    " .. EMPH2 .. "|Hspell:" .. spellId .. "|h[" .. spellName .. "]|h|r - " .. toons)
 		end
 	end
 	if globals.tcount(results) == 0 then
@@ -134,7 +134,7 @@ function f.slashCmds.missing()
 			print("  " .. EMPH1 .. profession .. "|r | " .. EMPH1 .. category)
 			for spellId, toons in globals.sortedpairs(spellIds, globals.compspell) do
 				local spellName = globals.spellNames[spellId]
-				print("    " .. EMPH2 .. spellName)
+				print("    " .. EMPH2 .. "|Hspell:" .. spellId .. "|h[" .. spellName .. "]|h|r")
 			end
 		end
 	end
