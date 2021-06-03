@@ -23,12 +23,10 @@ GameTooltip:HookScript("OnTooltipSetItem", function(self)
 		local itemTypeId, subItemTypeId = select(12, GetItemInfo(itemLink))
 		if itemTypeId ~= LE_ITEM_CLASS_RECIPE then return end
 
-		-- local _, itemId = strsplit(":", itemLink)
+		if not itemName:find(":", 1, true) then return end
+
 		profName = recipeProfession[subItemTypeId]
-
-		local modifiedName = select(2, strsplit(":", itemName))
-		if not modifiedName then return end
-
+		local modifiedName = table.concat({select(2, strsplit(":", itemName))})
 		modifiedName = modifiedName:gsub(" ", ""):lower()
 		spellId = globals.reverseLookup[modifiedName]
 	else

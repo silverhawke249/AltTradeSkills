@@ -2452,7 +2452,7 @@ for _, profTable in pairs(data) do
 		for _, spellId in ipairs(subTable) do
 			local spellName = GetSpellInfo(spellId)
 			if spellName then
-				local modifiedSpellName = spellName:gsub(" ", ""):lower()
+				local modifiedSpellName = spellName:gsub("[ :]", ""):lower()
 
 				globals.spellNames[spellId] = spellName
 				globals.reverseLookup[modifiedSpellName] = spellId
